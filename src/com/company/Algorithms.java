@@ -6,9 +6,25 @@ import java.util.Comparator;
 
 public class Algorithms {
 
+    public double FCFS(ArrayList<Process> lista) {
+        return simulate(lista, new CmpEntranceTime(), 1, 0, false, null, 0);
+    }
+
+    public double SJF(ArrayList<Process> lista) {
+        return simulate(lista, new CmpPhaseLength(), 1, 0, false, null, 1000);
+    }
+
+    public double SJFPreemptive(ArrayList<Process> lista) {
+        return simulate(lista, new CmpPhaseLength(), 1, 0.1, true, new PreemptivePredicateSJF(), 300000);
+    }
+
+    public double RR(ArrayList<Process> lista, double kwantCzasu) {
+        return simulate(lista, new CmpRR(), kwantCzasu, 0.1, true, new PreemptivePredicateRR(), 0);
+    }
+
+
     public double simulate(ArrayList<Process> list, Comparator<Process> comparator, double processorTick,
                            double preemptiveTime, boolean whetherToPreempt, PreemptivePredicate preemptivePredicate, double whenStarved) {
-
 
         ArrayList<Process> processesQueue = new ArrayList<Process>(list);
         Collections.sort(processesQueue, new CmpEntranceTime());
@@ -79,7 +95,23 @@ public class Algorithms {
             }
 
         }
-        return 0.0;
+        double waitingTime = 0;
+        double longestWaitingTime = 0;
+        int numberOfStarved = 0;
+        for(int i=0; i<finishedProcesses.size(); i++) {
+            if(finishedProcesses.get(i).getWaitingTime()>longestWaitingTime) {
+                longestWaitingTime = finishedProcesses.get(i).getWaitingTime();
+            }
+            if(comparator instanceof CmpPhaseLength &&  finishedProcesses.get(i).getWaitingTime()>=whenStarved ) {
+                numberOfStarved++;
+            }
+            waitingTime += finishedProcesses.get(i).getWaitingTime();
+        }
+        System.out.println("The longest waiting time: " + longestWaitingTime);
+        if(comparator instanceof CmpPhaseLength) {
+            System.out.println("The number of starved: " + numberOfStarved);
+        }
+        return waitingTime/finishedProcesses.size();
 
     }
 }

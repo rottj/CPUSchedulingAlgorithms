@@ -1,7 +1,6 @@
 package com.company;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
 public class Algorithms {
@@ -26,12 +25,12 @@ public class Algorithms {
     public double simulate(ArrayList<Process> list, Comparator<Process> comparator, double processorTick,
                            double preemptiveTime, boolean whetherToPreempt, PreemptivePredicate preemptivePredicate, double whenStarved) {
 
-        ArrayList<Process> processesQueue = new ArrayList<Process>(list);
-        Collections.sort(processesQueue, new CmpEntranceTime());
+        ArrayList<Process> processesQueue = new ArrayList<>(list);
+        processesQueue.sort(new CmpEntranceTime());
 
         Process currentProcess = null;
-        ArrayList<Process> finishedProcesses = new ArrayList<Process>();
-        ArrayList<Process> waitingProcesses = new ArrayList<Process>();
+        ArrayList<Process> finishedProcesses = new ArrayList<>();
+        ArrayList<Process> waitingProcesses = new ArrayList<>();
         double currentTime = 0;
 
         while (finishedProcesses.size() != list.size()) {
@@ -48,18 +47,18 @@ public class Algorithms {
 
             if ((whetherToPreempt || currentProcess == null) && waitingProcesses.size() > 0) {
 
-                Collections.sort(waitingProcesses, comparator);
+                waitingProcesses.sort(comparator);
                 Process nextProces = waitingProcesses.get(0);
 
-                if(currentProcess == null || (whetherToPreempt && preemptivePredicate.whetherToPreempt(currentProcess, nextProces))){
+                if(currentProcess == null || preemptivePredicate.whetherToPreempt(currentProcess, nextProces)){
 
                     if(currentProcess != null) {
                         currentTime += preemptiveTime;
                         waitingProcesses.add(currentProcess);
 
-                        for(int i=0; i<waitingProcesses.size(); i++) {
-                            double waitingTime = waitingProcesses.get(i).getWaitingTime();
-                            waitingProcesses.get(i).setWaitingTime(waitingTime + preemptiveTime);
+                        for (Process waitingProcess : waitingProcesses) {
+                            double waitingTime = waitingProcess.getWaitingTime();
+                            waitingProcess.setWaitingTime(waitingTime + preemptiveTime);
                         }
                     }
                     currentProcess = waitingProcesses.remove(0);
@@ -88,8 +87,7 @@ public class Algorithms {
 
             currentTime += currentProcessorTick;
 
-            for(int i=0; i<waitingProcesses.size(); i++) {
-                Process waitingProcess = waitingProcesses.get(i);
+            for (Process waitingProcess : waitingProcesses) {
                 double waitingTime = waitingProcess.getWaitingTime();
                 waitingProcess.setWaitingTime(waitingTime + currentProcessorTick);
             }
@@ -98,14 +96,14 @@ public class Algorithms {
         double waitingTime = 0;
         double longestWaitingTime = 0;
         int numberOfStarved = 0;
-        for(int i=0; i<finishedProcesses.size(); i++) {
-            if(finishedProcesses.get(i).getWaitingTime()>longestWaitingTime) {
-                longestWaitingTime = finishedProcesses.get(i).getWaitingTime();
+        for (Process finishedProcess : finishedProcesses) {
+            if (finishedProcess.getWaitingTime() > longestWaitingTime) {
+                longestWaitingTime = finishedProcess.getWaitingTime();
             }
-            if(comparator instanceof CmpPhaseLength &&  finishedProcesses.get(i).getWaitingTime()>=whenStarved ) {
+            if (comparator instanceof CmpPhaseLength && finishedProcess.getWaitingTime() >= whenStarved) {
                 numberOfStarved++;
             }
-            waitingTime += finishedProcesses.get(i).getWaitingTime();
+            waitingTime += finishedProcess.getWaitingTime();
         }
         System.out.println("The longest waiting time: " + longestWaitingTime);
         if(comparator instanceof CmpPhaseLength) {

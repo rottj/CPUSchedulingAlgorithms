@@ -14,6 +14,7 @@ public class GUI extends JFrame {
     private JLabel label5;
     private JLabel label6;
     private JLabel label7;
+    private JLabel labelError;
 
     public GUI(){
         generator = new Generator();
@@ -26,7 +27,7 @@ public class GUI extends JFrame {
         setLocationRelativeTo(null);
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(6, 2));
+        panel.setLayout(new GridLayout(7, 2));
 
         JLabel label1 = new JLabel("Enter number of Processes:");
         panel.add(label1);
@@ -60,11 +61,14 @@ public class GUI extends JFrame {
         label5 = new JLabel(" SJF: ");
         panel.add(label5);
 
-        label6 = new JLabel(" SJFw: ");
+        label6 = new JLabel(" SJFPreemptive: ");
         panel.add(label6);
 
         label7 = new JLabel(" RR: ");
         panel.add(label7);
+
+        labelError = new JLabel("");
+        panel.add(labelError);
 
         add(panel);
         setVisible(true);
@@ -73,27 +77,40 @@ public class GUI extends JFrame {
 
     private void setActionListener(){
         button.addActionListener(e -> {
-            int numberOFProcesses = Integer.parseInt(textField1.getText());
-            int timeRR = Integer.parseInt(textField2.getText());
-            try {
-                double[] result = generator.generate(numberOFProcesses, timeRR);
-                double fcfs = result[0];
-                double sjf = result[1];
-                double sjfw = result[2];
-                double rr = result[3];
-                DecimalFormat df = new DecimalFormat("#.##");
-                String formattedValueFCFS = df.format(fcfs);
-                String formattedValueSJF = df.format(sjf);
-                String formattedValueSJFW = df.format(sjfw);
-                String formattedValueRR  = df.format(rr);
+            int numberOFProcesses;
+            int timeRR;
 
-                label4.setText(" FCFS:    " + formattedValueFCFS);
-                label5.setText(" SJF:    " + formattedValueSJF);
-                label6.setText(" SJFw:    " + formattedValueSJFW);
-                label7.setText(" RR:    " + formattedValueRR);
+            try{
+                numberOFProcesses = Integer.parseInt(textField1.getText());
+                timeRR = Integer.parseInt(textField2.getText());
 
-            } catch (CloneNotSupportedException ex) {
-                ex.printStackTrace();
+                try {
+                    double[] result = generator.generate(numberOFProcesses, timeRR);
+                    double fcfs = result[0];
+                    double sjf = result[1];
+                    double sjfw = result[2];
+                    double rr = result[3];
+                    DecimalFormat df = new DecimalFormat("#.##");
+                    String formattedValueFCFS = df.format(fcfs);
+                    String formattedValueSJF = df.format(sjf);
+                    String formattedValueSJFW = df.format(sjfw);
+                    String formattedValueRR  = df.format(rr);
+
+                    label4.setText(" FCFS:    " + formattedValueFCFS);
+                    label5.setText(" SJF:    " + formattedValueSJF);
+                    label6.setText(" SJFPreemptive:    " + formattedValueSJFW);
+                    label7.setText(" RR:    " + formattedValueRR);
+
+                    labelError.setText("");
+
+
+                } catch (CloneNotSupportedException ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+            catch(NumberFormatException exception){
+                labelError.setText("Enter integers!");
             }
 
         });
